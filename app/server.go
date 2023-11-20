@@ -7,36 +7,44 @@ import (
 	"os"
 
 	"github.com/DataDog/dd-trace-go/v2/ddtrace/tracer"
+	"gopkg.in/DataDog/dd-trace-go.v1/ddtrace/tracer/contrib/gorilla/mux"
 )
 
-var usoCounter = metrics.NewCounter("custom_app.uso_count")
+func ping(w http.ResponseWriter, req *http.Request) {
+	// Criar uma span para a rota "ping"
+	span, ctx := tracer.StartSpanFromRequest(req, "ping")
+	defer span.Finish()
 
-func uso(w http.ResponseWriter, req *http.Request) {
-	// Incrementar a métrica de uso
-	usoCounter.Increment()
-
-	// Lógica da rota "/uso" aqui...
-	fmt.Fprintf(w, "Contador de uso incrementado")
+	// Lógica da rota "ping" aqui...
+	fmt.Fprintf(w, "pong")
 }
 
 func main() {
 	// Iniciar o tracer Datadog
-	if err := tracer.Start(tracer.WithEnv("development"), tracer.WithService("my-go-app")); err != nil {
+	_, err := tracer.Start(
+		tracer.WithEnv("development"),
+		tracer.WithService("my-go-app"),
+	)
+	if err != nil {
 		log.Fatal(err)
 	}
 	defer tracer.Stop()
 
-	// Configurar a rota "/uso" para o manipulador "uso"
-	http.HandleFunc("/uso", uso)
+	// Configurar o roteador Gorilla Mux
+	r := mux.NewRouter()
+	r.HandleFunc("/ping", ping)
+
+	// Configurar o middleware Datadog para o roteador
+	r.Use(mux.Middleware)
 
 	// Configurar a rota "/metrics" para expor métricas Prometheus
 	http.Handle("/metrics", promhttp.Handler())
 
-	// Iniciar o servidor HTTP
+	// Iniciar o servidor HTTP com o roteador
 	port := os.Getenv("PORT")
 	if port == "" {
 		port = "8090"
 	}
 	log.Printf("Servidor escutando na porta %s...\n", port)
-	log.Fatal(http.ListenAndServe(":"+port, nil))
+	log.Fatal(http.ListenAndServe(":"+port, r))
 }
