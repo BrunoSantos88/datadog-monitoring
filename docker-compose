@@ -1,0 +1,28 @@
+version: '3'
+
+services:
+  meu-app-go:
+    build:
+      context: app/.
+    ports:
+      - "8090:8090"
+    network_mode: "host"
+    environment:
+      - DD_AGENT_HOST=datadog-agent
+      - DD_ENV=development
+      - DD_SERVICE=my-go-app
+    depends_on:
+      - datadog-agent
+  
+  datadog-agent:
+    image: "datadog/agent:latest"
+    environment:
+      - DD_API_KEY=164ba6c28195560edccb79654ad46bf4
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    ports:
+      - "8125:8125/udp"
+      - "8126:8126/tcp"
+    cap_add:
+      - SYS_ADMIN
+      - SYS_PTRACE
