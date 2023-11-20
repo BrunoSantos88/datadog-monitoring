@@ -1,8 +1,21 @@
-FROM golang:1.18
-WORKDIR /go/src/app
+# Use a imagem oficial do Golang como base
+FROM golang:latest
+
+# Defina o diretório de trabalho dentro do contêiner
+WORKDIR /app
+
+# Copie os arquivos necessários para o diretório de trabalho
 COPY . .
-RUN go mod prom_example imports
-RUN go mod tidy
-RUN go build server.go
-CMD ["./server"] 
-EXPOSE 8090
+
+# Instale as dependências do Datadog
+RUN go get github.com/DataDog/dd-trace-go/v2/ddtrace/tracer
+RUN go get gopkg.in/DataDog/dd-trace-go.v1/ddtrace/tracer/contrib/gorilla/mux
+
+# Compilar a aplicação
+RUN go build -o my-go-app
+
+# Expor a porta que a aplicação Go está escutando
+EXPOSE 8080
+
+# Comando para executar a aplicação quando o contêiner for iniciado
+CMD ["./my-go-app"]

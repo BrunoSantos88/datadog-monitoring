@@ -43,7 +43,7 @@ func main() {
 	// Iniciar o servidor HTTP com o roteador
 	port := os.Getenv("PORT")
 	if port == "" {
-		port = "8090"
+		port = "8080"
 	}
 	log.Printf("Servidor escutando na porta %s...\n", port)
 	log.Fatal(http.ListenAndServe(":"+port, r))
