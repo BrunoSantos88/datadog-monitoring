@@ -7,7 +7,6 @@ import (
 	"os"
 
 	"gopkg.in/DataDog/dd-trace-go.v1/ddtrace/metrics"
-	"gopkg.in/DataDog/dd-trace-go.v1/ddtrace/tracer"
 )
 
 var usoCounter = metrics.NewCounter("custom_app.uso_count")
