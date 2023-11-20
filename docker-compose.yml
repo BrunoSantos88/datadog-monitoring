@@ -17,7 +17,7 @@ services:
   datadog-agent:
     image: "datadog/agent:latest"
     environment:
-      - DD_API_KEY=164ba6c28195560edccb79654ad46bf4
+      - DD_API_KEY=6e2ab90a3fca7c6130f4bb630769e689
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     ports:
